@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+.env
+.opencode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.idea/
+mobile/.vscode/
+mobile/android/local.properties
+mobile/android/key.properties
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/app.flx
+mobile/ios/Flutter/app.zip
+mobile/ios/Flutter/flutter_export_environment.sh
+mobile/ios/Flutter/flutter_assets/
+
+# Large Model Files
+*.gguf
+local-gemma-model/
+gemma-scam-toolbox-output/
+gemma-scam-rocm-model/
+qwen-scam-rocm-model/
+qwen3-scam-rocm-model/
+llama.cpp/
+
+# Datasets
+scam_dataset.jsonl
+
+# Logs
+*.log
+
+# Backend
+backend/static/

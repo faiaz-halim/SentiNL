@@ -1,0 +1,44 @@
+name: sentinl
+description: "SentiNL - On-Device Scam Detector for Seniors"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  permission_handler: ^12.0.1
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS-style icons.
+  cupertino_icons: ^1.0.2
+
+  # Database
+  sqflite: ^2.3.0
+  path_provider: ^2.1.1
+  path: ^1.9.0
+  # OCR
+  google_mlkit_text_recognition: ^0.15.1
+
+  # LLM
+  llamadart: ^0.6.10
+  flutter_markdown: ^0.7.4
+
+  # Image picking
+  image_picker: ^1.0.4
+
+  # Networking
+  http: ^1.1.0
+  dio: ^5.3.3
+  wakelock_plus: ^1.5.1
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+# The following section is specific to Flutter applications.
+flutter:
+  uses-material-design: true

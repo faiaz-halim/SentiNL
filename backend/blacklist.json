@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "pattern": "bit.ly/",
+        "type": "url",
+        "description": "URL shortener often used in scams"
+    },
+    {
+        "id": 2,
+        "pattern": "your account is locked",
+        "type": "text",
+        "description": "Urgency scam phrase"
+    },
+    {
+        "id": 3,
+        "pattern": "click here to verify",
+        "type": "text",
+        "description": "Phishing instruction"
+    },
+    {
+        "id": 4,
+        "pattern": "winner",
+        "type": "text",
+        "description": "Prize scam keyword"
+    },
+    {
+        "id": 5,
+        "pattern": "irs.gov/refund",
+        "type": "url",
+        "description": "Fake IRS refund scam"
+    }
+]
