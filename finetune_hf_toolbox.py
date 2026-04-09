@@ -32,7 +32,7 @@ def format_conversation(text, label, explanation):
         ]
     }
 
-print("\n--- STEP 1: DOWNLOADING & PREPARING DATASET ---")
+print("--- STEP 1: DOWNLOADING & PREPARING DATASET ---")
 conversations = []
 
 try:
@@ -50,12 +50,44 @@ except Exception as e:
     print(f"Error loading sms_spam: {e}")
 
 try:
+    print("Loading notd5a/malicious-benign-sms-mms-dataset...")
+    sms2_dataset = load_dataset("notd5a/malicious-benign-sms-mms-dataset", data_files="dataset_v3_for_deberta.csv", split="train")
+    indices = random.sample(range(len(sms2_dataset)), min(5000, len(sms2_dataset)))
+    sampled_sms2 = sms2_dataset.select(indices)
+    for item in tqdm(sampled_sms2, desc="Processing Smishing Dataset"):
+        text = str(item.get('TEXT', item.get('text', '')))
+        label = item.get('LABEL', item.get('label', 0))
+        if label == 1:
+            explanation = "Danger: This message contains strong indicators of smishing or malicious intent."
+        else:
+            explanation = "Safe: This appears to be a normal, benign text message."
+        conversations.append(format_conversation(text, label, explanation))
+except Exception as e:
+    print(f"Error loading smishing dataset: {e}")
+
+try:
+    print("Loading zefang-liu/phishing-email-dataset...")
+    email_dataset = load_dataset("zefang-liu/phishing-email-dataset", split="train")
+    indices = random.sample(range(len(email_dataset)), min(5000, len(email_dataset)))
+    sampled_emails = email_dataset.select(indices)
+    for item in tqdm(sampled_emails, desc="Processing Phishing Emails"):
+        text = str(item.get('Email Text', ''))
+        label_str = str(item.get('Email Type', ''))
+        if 'Phishing' in label_str:
+            explanation = "Danger: This email exhibits deceptive patterns consistent with phishing scams."
+            conversations.append(format_conversation(text, 1, explanation))
+        elif 'Safe' in label_str:
+            explanation = "Safe: This appears to be a normal, benign email."
+            conversations.append(format_conversation(text, 0, explanation))
+except Exception as e:
+    print(f"Error loading phishing emails: {e}")
+
+try:
     print("Loading kmack/Phishing_urls...")
     phishing_dataset = load_dataset("kmack/Phishing_urls", split="train")
     phishing_only = phishing_dataset.filter(lambda x: x['label'] == 1)
-    indices = random.sample(range(len(phishing_only)), 5000)
+    indices = random.sample(range(len(phishing_only)), min(5000, len(phishing_only)))
     sampled_urls = phishing_only.select(indices)
-
     for item in tqdm(sampled_urls, desc="Processing Phishing URLs"):
         text = item['text']
         explanation = "Danger: This URL exhibits deceptive patterns consistent with phishing scams."

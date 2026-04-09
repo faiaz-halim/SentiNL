@@ -12,7 +12,7 @@ This document outlines the actual, finalized implementation of the SentiNL Flutt
 ## Phase 1: Dataset Prep & Local Model Fine-Tuning (AMD Strix Halo)
 *Due to Colab free-tier limitations and the user's massive 128GB Unified Memory APU, training was migrated entirely to local hardware.*
 
-1.  **Dataset Preparation:** A Python script (`prepare_scam_dataset.py`) automatically downloads `ucirvine/sms_spam` and samples `kmack/Phishing_urls` directly from Hugging Face. It formats 10,000+ rows into the exact Chat Template required by Gemma.
+1.  **Dataset Preparation:** A robust Python pipeline automatically aggregates four distinct Hugging Face datasets: `ucirvine/sms_spam`, `notd5a/sms-malicious-benign-dataset`, `zefang-liu/phishing-email-dataset`, and `kmack/Phishing_urls`. It formats over 20,500 diverse rows of SMS, Smishing, Email Phishing, and URL data into the exact Chat Template required by Gemma.
 2.  **AMD Hardware Overrides:** To prevent ROCm 6.2 segfaults on the RDNA 3.5 architecture, the environment is spoofed (`HSA_OVERRIDE_GFX_VERSION="11.0.0"`, `HSA_ENABLE_SDMA="0"`).
 3.  **Fine-Tuning:** Uses a custom `finetune_hf_toolbox.py` script running inside a patched Podman toolbox. It uses `AutoModelForCausalLM` with `attn_implementation="eager"` to bypass Triton flash-attention crashes.
 4.  **Export:** The LoRA adapter is merged via `PeftModel` and converted to `Q4_K_M` using a locally compiled CMake build of `llama.cpp`.
