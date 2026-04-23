@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'database_helper.dart';
 
 class SyncService {
-  static const String _baseUrl = const String.fromEnvironment('BACKEND_URL', defaultValue: 'http://10.0.2.2:8000');
+  static const String _baseUrl = const String.fromEnvironment('BACKEND_URL',
+      defaultValue: 'http://10.0.2.2:8000');
   static const Duration _timeout = Duration(seconds: 30);
 
   final DatabaseHelper _dbHelper;

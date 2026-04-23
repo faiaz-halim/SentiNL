@@ -16,7 +16,7 @@ LOCAL_MODEL_PATH = "./local-gemma-model"
 HF_MODEL_NAME = "google/gemma-4-E2b-it"
 DATASET_PATH = "scam_dataset.jsonl"
 OUTPUT_DIR = "gemma-scam-toolbox-output"
-MAX_SEQ_LENGTH = 2048
+MAX_SEQ_LENGTH = 1024
 
 print("🚀 Starting SentiNL All-in-One Fine-Tuning Pipeline...")
 
@@ -41,6 +41,7 @@ try:
     for item in tqdm(sms_dataset, desc="Processing UCI SMS Spam"):
         label = item['label']
         text = item['sms']
+        if not text or not str(text).strip(): continue
         if label == 1:
             explanation = "Danger: This message is classified as spam or a smishing attempt. It exhibits patterns common in unsolicited malicious messages."
         else:
@@ -55,7 +56,8 @@ try:
     indices = random.sample(range(len(sms2_dataset)), min(5000, len(sms2_dataset)))
     sampled_sms2 = sms2_dataset.select(indices)
     for item in tqdm(sampled_sms2, desc="Processing Smishing Dataset"):
-        text = str(item.get('TEXT', item.get('text', '')))
+        text = str(item.get('message', item.get('TEXT', item.get('text', ''))))
+        if not text or not text.strip(): continue
         label = item.get('LABEL', item.get('label', 0))
         if label == 1:
             explanation = "Danger: This message contains strong indicators of smishing or malicious intent."
@@ -72,6 +74,7 @@ try:
     sampled_emails = email_dataset.select(indices)
     for item in tqdm(sampled_emails, desc="Processing Phishing Emails"):
         text = str(item.get('Email Text', ''))
+        if not text or not text.strip() or text.lower() == 'nan': continue
         label_str = str(item.get('Email Type', ''))
         if 'Phishing' in label_str:
             explanation = "Danger: This email exhibits deceptive patterns consistent with phishing scams."
@@ -89,7 +92,8 @@ try:
     indices = random.sample(range(len(phishing_only)), min(5000, len(phishing_only)))
     sampled_urls = phishing_only.select(indices)
     for item in tqdm(sampled_urls, desc="Processing Phishing URLs"):
-        text = item['text']
+        text = str(item.get('text', ''))
+        if not text or not text.strip(): continue
         explanation = "Danger: This URL exhibits deceptive patterns consistent with phishing scams."
         conversations.append(format_conversation(text, 1, explanation))
 except Exception as e:
@@ -112,6 +116,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 hf_logging.set_verbosity_info()
 
 tokenizer = AutoTokenizer.from_pretrained(model_id, local_files_only=USE_LOCAL_MODEL)
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+tokenizer.padding_side = "right"
 
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
@@ -162,15 +169,19 @@ training_args = SFTConfig(
     output_dir=OUTPUT_DIR,
     dataset_text_field="text",
     max_length=MAX_SEQ_LENGTH,
-    per_device_train_batch_size=4,
-    gradient_accumulation_steps=4,
+    per_device_train_batch_size=2,          # Halved to reduce memory spikes
+    gradient_accumulation_steps=8,          # Doubled to maintain same effective batch size (16)
+    gradient_checkpointing=True,            # CRITICAL: Drops memory usage by 70% by not saving all activations
+    gradient_checkpointing_kwargs={"use_reentrant": False},
     warmup_steps=10,
     num_train_epochs=3,
     learning_rate=2e-4,
     bf16=True,
     logging_steps=5,
     optim="adamw_torch",
-    save_strategy="epoch",
+    save_strategy="steps",                  # Changed to steps
+    save_steps=1000,
+    save_total_limit=2,                     # Prevents hard drive from filling up with checkpoints
     report_to="none",
     disable_tqdm=False,
 )

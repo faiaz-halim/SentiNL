@@ -57,7 +57,7 @@ PYTHONNOUSERSITE=1 sudo python3 -m pip install --upgrade transformers datasets a
 ```
 
 ### 3. Run the All-in-One Training Pipeline
-Navigate to the project directory and run the fully automated training script. 
+Navigate to the project directory and run the fully automated training script.
 * *This script automatically downloads the UCI SMS & Phishing datasets, formats them, loads the base Gemma model in `bfloat16` using `eager` attention (to prevent Triton segfaults), trains the LoRA adapters, merges the model, compiles `llama.cpp` using CMake, and outputs the final `Q4_K_M` GGUF file!*
 
 ```bash
@@ -103,10 +103,7 @@ The Flutter app dynamically accepts your PC's IP address as an environment varia
 cd mobile
 flutter pub get
 
-# Run the app (Replace 192.168.2.232 with your actual computer's Wi-Fi IP address)
-flutter run --release \
-  --dart-define=BACKEND_URL=http://192.168.2.232:8000 \
-  --dart-define=MODEL_URL=http://192.168.2.232:8080/gemma-4-E2b-scam-q4_k_m.gguf
+./run_app.sh
 ```
 *(Note: Because you already sideloaded the `.gguf` file via ADB, the app's startup sequence will instantly bypass the `MODEL_URL` download phase!)*
 

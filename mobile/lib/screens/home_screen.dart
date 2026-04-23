@@ -99,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       final extractedText = await _ocrService.extractText(imageFile);
+
       setState(() {
         _extractedText = extractedText;
       });

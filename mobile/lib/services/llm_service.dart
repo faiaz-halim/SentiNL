@@ -215,6 +215,7 @@ Please consider this additional context and provide your final analysis.''';
 
   Future<void> dispose() async {
     _chatSession = null;
+    _engine?.dispose();
     _engine = null;
     _isInitialized = false;
   }
